@@ -58,6 +58,6 @@ void gen_e(mpz_t e, const mpz_t phi, gmp_randstate_t st) {
     mpz_clears(gcd, limit, NULL);
 }
 
-void gen_d(mpz_t d, mpz_t e, mpz_t n) {
-    mpz_invert(d, e, n);
+void gen_d(mpz_t d, mpz_t e, mpz_t phi) {
+    mpz_invert(d, e, phi);
 }

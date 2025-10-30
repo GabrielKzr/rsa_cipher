@@ -51,30 +51,77 @@ int main(void) {
     if(ret < 0) return -1;
     */
 
+    /*
     if (load_values("files/values.txt", p, q, n, phi, e, d) != 0) {
         fprintf(stderr, "Erro ao carregar valores de values.txt\n");
         mpz_clears(p, q, n, phi, e, d, NULL);
         gmp_randclear(st);
         return -1;
     }
-
+    
     //printf("======== valores carregados =========");
     
     //printf("bitlen(n)=%zu\n", mpz_sizeinbase(n, 2)); // deve imprimir 2048
     
     // Imprime p, q e n em hexadecimal
-    //gmp_printf("p   (hex) = 0x%Zx\n", p);
-    //gmp_printf("q   (hex) = 0x%Zx\n", q);
-    //gmp_printf("phi (hex) = 0x%Zx\n", phi);
-    //gmp_printf("e   (hex) = 0x%Zx   \n", e);
-    //gmp_printf("d   (hex) = 0x%Zx   \n", d);
+    gmp_printf("p   (hex) = %Zd\n", p);
+    gmp_printf("q   (hex) = %Zd\n", q);
+    gmp_printf("phi (hex) = %Zd\n", phi);
+    gmp_printf("e   (hex) = %Zd   \n", e);
+    gmp_printf("d   (hex) = %Zd   \n", d);
+    gmp_printf("n   (hex) = %Zd   \n", n);
+    */
 
-    int ret = encrypt("files/arquivo.txt", "files/arquivo_novo.txt", e, n);
+    mpz_set_ui(p, 61);
+    mpz_set_ui(q, 53);
+    mpz_mul(n, p, q);            // n = p * q
+    phi_euler(p, q, phi);       // phi = (p-1)*(q-1)
+    mpz_set_ui(e, 17);          // expositor público
+    gen_d(d, e, phi);             // d = e^{-1} mod phi
+    
+    size_t mod_bytes = (mpz_sizeinbase(n, 2) + 7) / 8;
+    size_t plain_max = mod_bytes - 1; // seguro sem padding
 
+    uint8_t plain[plain_max];
+    uint8_t respo[plain_max];
+    memset(plain, 0, plain_max);
+    memset(respo, 0, plain_max);
+
+    plain[0] = 'a';
+    
+    
+    printf("plain_max -> %zu\n", plain_max);
+    printf("plain -> %s\n", plain);
+
+
+    mpz_t x, c, y;
+    mpz_inits(x, c, y, NULL);
+
+    mpz_import(x, plain_max, -1, 1, 0, 0, plain);
+
+    gmp_printf("n -> %Zd\n", n);
+    gmp_printf("x -> %Zd\n", x);
+
+    mpz_powm(c, x, e, n);
+    mpz_powm(y, c, d, n);
+
+    gmp_printf("y -> %Zd\n", y);
+
+    size_t respo_size;
+    mpz_export(respo, &respo_size, -1, 1, 0, 0, y);
+    respo[respo_size] = 0;
+
+    printf("respo -> %s\n", respo);
+
+
+    /*
+    int ret = encrypt("files/arquivo.txt", "files/arquivo_novo.txt", e, d, n);
+    
     if(ret < 0) {
         printf("ERRO ao encriptar"); 
         return -1;
     }
+    */
 
     mpz_clears(p, q, n, phi, e, d, NULL);
     gmp_randclear(st);
