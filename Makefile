@@ -30,7 +30,7 @@ $(BIN_DIR):
 
 run: all
 	@echo "Running $(TARGET)"
-	@./$(TARGET)
+	@./$(TARGET) 2>&1 | tee out.txt
 
 clean:
 	-rm -rf $(BIN_DIR)
