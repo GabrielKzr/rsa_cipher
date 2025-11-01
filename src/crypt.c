@@ -23,16 +23,11 @@ int crypt_eq(const mpz_t exp, const mpz_t mod, const uint8_t* buf_in, size_t in_
     mpz_export(temp, &bytes_after, 1, 1, 0, 0, y);
 
     // faz o ajuste dos bytes faltantes (zeros a esquerda) após calculo do y
-    
     size_t missing = N_SIZE - bytes_after;
     memcpy(buf_out+missing, temp, bytes_after);
     memset(buf_out, 0, missing);
 
-    // if(!(in_len < MAX_FRAMES)) *out_len = MAX_FRAMES;
-    // else *out_len = bytes_after;
-    // *out_len = N_SIZE;
-
-    *out_len = MAX_FRAMES;
+    if(out_len) *out_len = MAX_FRAMES;
 
     mpz_clears(x, y, NULL);
     return 0;
@@ -60,30 +55,17 @@ int encrypt(const char* filepath_in, const char* filepath_out, const mpz_t e, co
     memset(plain, 0, MAX_PAYLOAD);
 
     size_t r;
-    // printf("começando...\n");
-    // printf("sizeof(packet) -> %zu\n", sizeof(packet));
-
     packet*  p = malloc(sizeof(packet));
     uint8_t* c = malloc(256);
     
-    int i = 0;
     while ((r = fread(plain, 1, MAX_PAYLOAD, fin)) > 0) {
-        i++;
-        
         // limpar
         memset(p, 0, sizeof(packet));
         memset(c, 0, 256);
         size_t cipher_len = 0;
         
         // empacotar
-        create_packet(plain, r, p);
-
-    /*
-    if(i == pacotes_analisados) {
-        printf("ORIGINAL \n");
-        print_packet_hex(p);
-    }
-    */    
+        create_packet(plain, r, p);  
     
         //  encriptar
         int ret = crypt_eq(e, n, p->bytes, MAX_FRAMES, c, &cipher_len);
@@ -92,21 +74,10 @@ int encrypt(const char* filepath_in, const char* filepath_out, const mpz_t e, co
             return ret;
         }
 
-        if(i == pacotes_analisados) {
-            printf("ENCRIPTADO ENVIADO\n");
-            print_packet_hex(c);
-        }
-
         // salvar
         if (fwrite(c, 1, cipher_len, fout) != cipher_len) {
             perror("Erro ao gravar arquivo de saída");
             return -1;
-        }
-
-        if(i == pacotes_analisados) {
-            printf("cypher_len -> %d\n", cipher_len);
-            printf("O BYTE FUDIDO\n");
-            printf("b[255] -> 0x%02X\n", c[255]);
         }
 
         memset(plain, 0, MAX_PAYLOAD);
@@ -146,34 +117,18 @@ int decrypt(const char* filepath_in, const char* filepath_out, const mpz_t d, co
     packet*  p = malloc(sizeof(packet));
     uint8_t* s = malloc(MAX_PAYLOAD);
 
-    int i = 0;
     while ((r = fread(plain, 1, N_SIZE, fin)) > 0) {
-        i++;
         // limpar
         memset(p, 0, sizeof(packet));
         memset(s, 0, MAX_PAYLOAD);
         size_t data_len = 0;
 
-        if(i == pacotes_analisados) {
-            printf("ENCRIPTADOS RECEBIDOS\n");
-            print_packet_hex(plain);
-        }
-
-
         // decriptar
         int ret = crypt_eq(d, n, plain, r, p->bytes, &data_len);
         if (ret != 0) {
-            printf("Erro na descriptografia: %d\n", ret);
-            printf("iteração -> %d\n", i);
+            fprintf(stderr, "Erro na descriptografia: %d\n", ret);
             return ret;
         }
-    /*
-    if(i == pacotes_analisados) {
-        printf("DECRIPTADO\n");
-        print_packet_hex(p);
-    }
-    */
-
 
         // desempacotar
         unpack_packet(p, s);
