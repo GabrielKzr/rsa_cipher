@@ -1,10 +1,11 @@
 #ifndef HANDLE_ARGS
 #define HANDLE_ARGS
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <getopt.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include <gmp.h>
 #include "crypt.h"
 #include "store.h"
@@ -23,5 +24,11 @@ extern const size_t num_commands;
 extern const char* commands[];
 extern const char* options[];
 extern int (*handlers[])(int, char **);
+
+typedef struct {
+    const char *keyfile;
+    const char *infile;
+    const char *outfile;
+} cmd_opts_t;
 
 #endif
