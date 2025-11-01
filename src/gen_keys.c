@@ -61,3 +61,21 @@ void gen_e(mpz_t e, const mpz_t phi, gmp_randstate_t st) {
 void gen_d(mpz_t d, mpz_t e, mpz_t phi) {
     mpz_invert(d, e, phi);
 }
+
+void gen_keys(mpz_t p, mpz_t q, mpz_t n, mpz_t phi, mpz_t e, mpz_t d) {
+    
+    gmp_randstate_t st;
+    gmp_randinit_default(st);
+
+    // ATENCAO: para uso serio, sementeie com /dev/urandom (veja nota abaixo)
+    gmp_randseed_ui(st, (unsigned long) time(NULL));   
+    const mp_bitcnt_t k = 1024;
+    const int reps = 30;
+
+    gen_p_q_n(p, q, n, st, k, reps);
+    phi_euler(p, q, phi);
+    gen_e(e, phi, st);
+    gen_d(d, e, phi);
+
+    gmp_randclear(st);   
+}

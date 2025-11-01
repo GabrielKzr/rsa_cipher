@@ -29,8 +29,8 @@ $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
 run: all
-	@echo "Running $(TARGET)"
-	@./$(TARGET) 2>&1 | tee out.txt
+# @echo "Running $(TARGET)"
+	@./$(TARGET) $(filter-out $@,$(MAKECMDGOALS)) 2>&1 | tee out.txt
 
 clean:
 	-rm -rf $(BIN_DIR)

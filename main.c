@@ -1,10 +1,19 @@
-#include "tests.h"
+// #include "tests.h"
+#include "handle_args.h"
 
-int main(void) {
+int main(int argc, char** argv) {
+ 
+    if(argc < 2) {
+        printf("missing arguments\n");
+        return -1;
+    }
     
-    // test1();
-    testImage();
-    // testPacket();
+    int command = find_command(argv[COMMAND]);
+    return handlers[command](argc, argv);
 
-    return 0;
+    /* testes disponíveis em tests.h */
+    // test1();
+    // testImage();
+    // testPacket();
 }
+

@@ -111,9 +111,6 @@ int decrypt(const char* filepath_in, const char* filepath_out, const mpz_t d, co
     memset(plain, 0, N_SIZE);
     
     size_t r;
-    printf("começando...\n");
-    printf("sizeof(packet) -> %zu\n", sizeof(packet));
-
     packet*  p = malloc(sizeof(packet));
     uint8_t* s = malloc(MAX_PAYLOAD);
 
