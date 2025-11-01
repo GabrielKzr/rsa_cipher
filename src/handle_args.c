@@ -1,12 +1,4 @@
 #include "handle_args.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <gmp.h>
-#include "crypt.h"
-#include "store.h"
-#include "gen_keys.h"
 
 const size_t num_commands = 3;
 const char* commands[] = {"genkey", "encrypt", "decrypt"};
