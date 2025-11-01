@@ -72,7 +72,7 @@ int handle_genkey(int argc, char** argv) {
     mpz_inits(p,q,n,phi,e,d, NULL);
 
     gen_keys(p,q,n,phi,e,d);
-    if (save_values(opts.keyfile, p,q,n,phi,e,d) != 0) {
+    if (save_keys(opts.keyfile, n, e, d) != 0) {
         fprintf(stderr, "Failed saving keys to %s\n", opts.keyfile);
         mpz_clears(p,q,n,phi,e,d, NULL);
         return -1;
@@ -93,17 +93,17 @@ int handle_encrypt(int argc, char** argv) {
     if (access(opts.keyfile, R_OK) != 0) { fprintf(stderr, "Key file not readable: %s\n", opts.keyfile); return -1; }
     if (access(opts.infile, R_OK) != 0) { fprintf(stderr, "Input file not readable: %s\n", opts.infile); return -1; }
 
-    mpz_t p,q,n,phi,e,d;
-    mpz_inits(p,q,n,phi,e,d, NULL);
-    if (load_values(opts.keyfile, p,q,n,phi,e,d) != 0) {
+    mpz_t n,e,d;
+    mpz_inits(n,e,d, NULL);
+    if (load_keys(opts.keyfile, n, e, d) != 0) {
         fprintf(stderr, "Failed loading keys from %s\n", opts.keyfile);
-        mpz_clears(p,q,n,phi,e,d, NULL);
+        mpz_clears(n,e,d, NULL);
         return -1;
     }
 
     int rc = encrypt(opts.infile, opts.outfile, e, n);
     if (rc != 0) fprintf(stderr, "encrypt() failed: %d\n", rc);
-    mpz_clears(p,q,n,phi,e,d, NULL);
+    mpz_clears(n,e,d, NULL);
     return rc;
 }
 
@@ -117,17 +117,17 @@ int handle_decrypt(int argc, char** argv) {
     if (access(opts.keyfile, R_OK) != 0) { fprintf(stderr, "Key file not readable: %s\n", opts.keyfile); return -1; }
     if (access(opts.infile, R_OK) != 0) { fprintf(stderr, "Input file not readable: %s\n", opts.infile); return -1; }
 
-    mpz_t p,q,n,phi,e,d;
-    mpz_inits(p,q,n,phi,e,d, NULL);
-    if (load_values(opts.keyfile, p,q,n,phi,e,d) != 0) {
+    mpz_t n,e,d;
+    mpz_inits(n,e,d, NULL);
+    if (load_keys(opts.keyfile, n, e, d) != 0) {
         fprintf(stderr, "Failed loading keys from %s\n", opts.keyfile);
-        mpz_clears(p,q,n,phi,e,d, NULL);
+        mpz_clears(n,e,d, NULL);
         return -1;
     }
 
     int rc = decrypt(opts.infile, opts.outfile, d, n);
     if (rc != 0) fprintf(stderr, "decrypt() failed: %d\n", rc);
-    mpz_clears(p,q,n,phi,e,d, NULL);
+    mpz_clears(n,e,d, NULL);
     return rc;
 }
 
